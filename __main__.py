@@ -1,9 +1,9 @@
-from configuration import Configuration
-from process import Processor
-from strategies.clean_transactions_strategy import CleanTransactionsStrategy
-from strategies.group_transactions_strategy import GroupTransactionsStrategy
-from strategies.values_by_month_strategy import ValuesByMonthStrategy
-from storage import (
+from app.configuration import Configuration
+from app.process import Processor
+from app.strategies.clean_transactions_strategy import CleanTransactionsStrategy
+from app.strategies.group_transactions_strategy import GroupTransactionsStrategy
+from app.strategies.values_by_month_strategy import ValuesByMonthStrategy
+from app.storage import (
 	load_saved_transactions,
 	load_transactions,
 	save_raw_transactions,

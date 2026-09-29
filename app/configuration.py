@@ -8,6 +8,7 @@ class Configuration(str, Enum):
     GROUPED_CHART_FILE = "data/output/graphs/grouped_transactions.png"
     MONTHLY_VALUES_FILE = "data/output/values/values_by_month.json"
     MONTHLY_CHART_FILE = "data/output/graphs/values_by_month.png"
+    MONTHLY_PIE_CHART_FILE = "data/output/graphs/values_by_month_pie.png"
     GROUPING_FIELD = "description"
     GROUP_TRANSACTIONS = "group_transactions"
     VALUES_BY_MONTH = "values_by_month"

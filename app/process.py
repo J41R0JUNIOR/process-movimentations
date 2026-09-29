@@ -4,7 +4,7 @@ from typing import Any, Protocol
 Transaction = dict[str, Any]
 
 class Strategy(Protocol):
-	def execute(self, transactions: list[Transaction]) -> Any:
+	def execute(self, transactions: Any) -> Any:
 		...
 
 class Processor:
@@ -14,7 +14,7 @@ class Processor:
 	def add_strategy(self, strategy: Strategy) -> None:
 		self.strategies.append(strategy)
 
-	def execute_all(self, transactions: list[Transaction]) -> dict[str, Any]:
+	def execute_all(self, transactions: Any) -> dict[str, Any]:
 		results = {}
 
 		for strategy in self.strategies:
@@ -23,7 +23,7 @@ class Processor:
 
 		return results
 
-	def execute(self, transactions: list[Transaction]) -> Any:
+	def execute(self, transactions: Any) -> Any:
 		if len(self.strategies) != 1:
 			raise ValueError("execute() requires exactly one Strategy; use execute_all()")
 
