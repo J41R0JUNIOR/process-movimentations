@@ -16,7 +16,7 @@ def main():
     cleaned_transactions = CleanTransactionsStrategy().execute(saved_transactions)
 
     processor = Processor(
-        GroupTransactionsStrategy(),
+        GroupTransactionsStrategy(should_generate_chart=True),
         ValuesByMonthStrategy(should_generate_chart=True),
     )
 
