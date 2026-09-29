@@ -10,3 +10,10 @@ class Configuration(str, Enum):
     GROUPING_FIELD = "description"
     GROUP_TRANSACTIONS = "group_transactions"
     VALUES_BY_MONTH = "values_by_month"
+
+
+class CleanupConfiguration(str, Enum):
+    CLEANED_DATA_FILE = "data/output/cleaned_transactions.json"
+    CLEAN_TRANSACTIONS = "clean_transactions"
+    SAVINGS_APPLICATION = "Aplicação RDB"
+    SAVINGS_REDEMPTION = "Resgate RDB"
