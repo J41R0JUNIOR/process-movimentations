@@ -1,30 +1,30 @@
 from __future__ import annotations
 from typing import Any, Protocol
 
-Transacao = dict[str, Any]
+Transaction = dict[str, Any]
 
 class Strategy(Protocol):
-	def execute(self, transacoes: list[Transacao]) -> Any:
+	def execute(self, transactions: list[Transaction]) -> Any:
 		...
 
-class Processador:
+class Processor:
 	def __init__(self, *strategies: Strategy):
 		self.strategies = list(strategies)
 
 	def add_strategy(self, strategy: Strategy) -> None:
 		self.strategies.append(strategy)
 
-	def execute_all(self, transacoes_centrais: list[Transacao]) -> dict[str, Any]:
-		resultados = {}
+	def execute_all(self, transactions: list[Transaction]) -> dict[str, Any]:
+		results = {}
 
 		for strategy in self.strategies:
-			nome = getattr(strategy, "nome", strategy.__class__.__name__)
-			resultados[nome] = strategy.execute(transacoes_centrais)
+			name = getattr(strategy, "name", strategy.__class__.__name__)
+			results[name] = strategy.execute(transactions)
 
-		return resultados
+		return results
 
-	def execute(self, transacoes_centrais: list[Transacao]) -> Any:
+	def execute(self, transactions: list[Transaction]) -> Any:
 		if len(self.strategies) != 1:
-			raise ValueError("execute() exige exatamente uma Strategy; use execute_all()")
+			raise ValueError("execute() requires exactly one Strategy; use execute_all()")
 
-		return self.strategies[0].execute(transacoes_centrais)
+		return self.strategies[0].execute(transactions)

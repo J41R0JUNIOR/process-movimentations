@@ -4,25 +4,25 @@ from pathlib import Path
 from typing import Any
 
 
-def read_csv(caminho: Path) -> list[dict[str, Any]]:
-    transacoes: list[dict[str, Any]] = []
+def read_csv(path: Path) -> list[dict[str, Any]]:
+    transactions: list[dict[str, Any]] = []
 
-    with caminho.open("r", encoding="utf-8-sig", newline="") as arquivo:
-        leitor = csv.DictReader(arquivo)
+    with path.open("r", encoding="utf-8-sig", newline="") as file:
+        reader = csv.DictReader(file)
 
-        for linha in leitor:
-            transacao = {
-                "data": linha["Data"],
-                "valor": float(linha["Valor"]),
-                "identificador": linha["Identificador"],
-                "descricao": linha["Descrição"],
+        for row in reader:
+            transaction = {
+                "date": row["Data"],
+                "value": float(row["Valor"]),
+                "identifier": row["Identificador"],
+                "description": row["Descrição"],
             }
 
-            transacoes.append(transacao)
+            transactions.append(transaction)
 
-    return transacoes
+    return transactions
 
 
-def read_json(caminho: Path) -> list[dict[str, Any]]:
-    with caminho.open("r", encoding="utf-8") as arquivo:
-        return json.load(arquivo)
+def read_json(path: Path) -> list[dict[str, Any]]:
+    with path.open("r", encoding="utf-8") as file:
+        return json.load(file)

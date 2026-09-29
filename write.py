@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Any
 
 
-def write_json(caminho: Path, dados: list[dict[str, Any]]) -> None:
-    caminho.parent.mkdir(parents=True, exist_ok=True)
+def write_json(path: Path, data: list[dict[str, Any]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    with caminho.open("w", encoding="utf-8") as arquivo:
-        json.dump(dados, arquivo, ensure_ascii=False, indent=2)
+    with path.open("w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
