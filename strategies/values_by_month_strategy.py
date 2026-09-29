@@ -24,7 +24,7 @@ class ValuesByMonthStrategy:
 		for transaction in transactions:
 			date = datetime.strptime(str(transaction["date"]), "%d/%m/%Y")
 			month = date.strftime("%Y-%m")
-			totals[month] += abs(Decimal(str(transaction.get("value", 0))))
+			totals[month] += Decimal(str(transaction.get("value", 0)))
 
 		result = [
 			{"month": month, "value": float(value)}
