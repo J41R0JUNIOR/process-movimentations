@@ -1,21 +1,15 @@
 from enum import Enum
 
-
-class Configuration(str, Enum):
+class FOLDERS(str, Enum):
     INPUT_FOLDER = "data/input"
-    RAW_DATA_FILE = "data/output/values/transactions.json"
-    GROUPED_TRANSACTIONS_FILE = "data/output/values/grouped_transactions.json"
-    GROUPED_CHART_FILE = "data/output/graphs/grouped_transactions.png"
-    MONTHLY_VALUES_FILE = "data/output/values/values_by_month.json"
-    MONTHLY_CHART_FILE = "data/output/graphs/values_by_month.png"
-    MONTHLY_PIE_CHART_FILE = "data/output/graphs/values_by_month_pie.png"
-    GROUPING_FIELD = "description"
-    GROUP_TRANSACTIONS = "group_transactions"
+    OUTPUT_FOLDER = "data/output"  
+   
+class NAMES(str, Enum):
     VALUES_BY_MONTH = "values_by_month"
 
-
-class CleanupConfiguration(str, Enum):
-    CLEANED_DATA_FILE = "data/output/values/cleaned_transactions.json"
-    CLEAN_TRANSACTIONS = "clean_transactions"
-    SAVINGS_APPLICATION = "Aplicação RDB"
-    SAVINGS_REDEMPTION = "Resgate RDB"
+class FILES(str, Enum):
+    VALUES_BY_MONTH_FILE = FOLDERS.OUTPUT_FOLDER + "/values/" + NAMES.VALUES_BY_MONTH.value + ".json"
+    MONTHLY_CHART_FILE = FOLDERS.OUTPUT_FOLDER + "/graphs/" + NAMES.VALUES_BY_MONTH.value + ".png"
+    RAW_DATA_FILE = FOLDERS.OUTPUT_FOLDER + "/values/transactions.json"
+    CLEANED_DATA_FILE = FOLDERS.OUTPUT_FOLDER + "/values/cleaned_transactions.json"
+    MONTHLY_VALUES_FILE = FOLDERS.OUTPUT_FOLDER + "/values/" + NAMES.VALUES_BY_MONTH.value + ".json"
