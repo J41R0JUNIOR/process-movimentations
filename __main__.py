@@ -1,4 +1,4 @@
-from app.configuration import FILES, FOLDERS, NAMES
+from app.configuration import NAMES
 from app.process import Processor
 from app.strategies.clean_transactions_strategy import CleanTransactionsStrategy
 from app.strategies.values_by_month_strategy import ValuesByMonthStrategy

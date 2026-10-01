@@ -14,7 +14,7 @@ def read_csv(path: Path) -> list[dict[str, Any]]:
             transaction = {
                 "date": row["Data"],
                 "value": float(row["Valor"]),
-                "identifier": row["Identificador"],
+                "id": row["Identificador"],
                 "description": row["Descrição"],
             }
 
