@@ -12,18 +12,15 @@ def main():
     all_transactions = load_transactions()
     save_raw_transactions(all_transactions)
     saved_transactions = load_saved_transactions()
+
     cleaned_transactions = CleanTransactionsStrategy().execute(saved_transactions)
 
     processor = Processor(
         ValuesByMonthStrategy(should_generate_chart=True),
     )
 
-    results = processor.execute_all(cleaned_transactions)
+    processor.execute_all(cleaned_transactions)
 
-    values_by_month = results[NAMES.VALUES_BY_MONTH.value]
-
-    print(f"Total transactions: {len(all_transactions)}")
-    print(f"Total values by month: {len(values_by_month)}")
 
 
 if __name__ == "__main__":

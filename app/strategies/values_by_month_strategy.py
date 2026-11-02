@@ -44,7 +44,8 @@ class ValuesByMonthStrategy:
 		chart_file = Path(FILES.MONTHLY_CHART_FILE.value)
 		chart_file.parent.mkdir(parents=True, exist_ok=True)
 		figure, axis = plt.subplots(figsize=(10, 5))
-		axis.bar(months, values, color="#1769aa")
+		colors = ["#d32f2f" if value < 0 else "#1769aa" for value in values]
+		axis.bar(months, values, color=colors)
 		axis.axhline(0, color="#333333", linewidth=0.8)
 		axis.set_title("Values moved by month")
 		axis.set_xlabel("Month")
@@ -53,3 +54,4 @@ class ValuesByMonthStrategy:
 		figure.tight_layout()
 		figure.savefig(chart_file, dpi=150)
 		plt.close(figure)
+		
