@@ -53,6 +53,7 @@ def classify(description: str, amount_cents: int) -> Classification:
         ("netflix", "lazer"),
         ("spotify", "lazer"),
         ("amazon", "compras"),
+        ("steam", "jogos"),
     ):
         if keyword in normalized:
             return Classification("expense", category)

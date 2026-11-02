@@ -54,6 +54,11 @@ class FinancialPipelineTests(unittest.TestCase):
         self.assertTrue(result.is_ignored)
         self.assertTrue(result.is_card_payment)
 
+    def test_classification_maps_steam_to_games(self) -> None:
+        result = classify("Pag*Steam", -5999)
+        self.assertEqual(result.transaction_type, "expense")
+        self.assertEqual(result.category, "jogos")
+
     def test_database_deduplicates_same_source_and_id(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             connection = connect(Path(directory) / "financial.db")
