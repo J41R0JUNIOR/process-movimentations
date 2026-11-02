@@ -19,7 +19,13 @@ def build_services() -> tuple[ImportTransactions, GenerateReports]:
         GenerateReports(
             repository,
             ReportWriter(),
-            Path(FILES.MONTHLY_CHART_FILE.value),
+            {
+                "monthly": Path(FILES.MONTHLY_CHART_FILE.value),
+                "cashflow": Path(FILES.MONTHLY_CASHFLOW_CHART_FILE.value),
+                "product": Path(FILES.PRODUCT_EXPENSES_CHART_FILE.value),
+                "category": Path(FILES.CATEGORY_EXPENSES_CHART_FILE.value),
+                "activity": Path(FILES.TRANSACTION_ACTIVITY_CHART_FILE.value),
+            },
         ),
     )
 
@@ -49,5 +55,6 @@ def main() -> None:
         total, inserted = importer.execute()
         print(f"Transactions read: {total}; inserted into SQLite: {inserted}")
     if command in ("pipeline", "report"):
-        chart_path = reporter.execute()
-        print(f"Chart generated: {chart_path}")
+        chart_paths = reporter.execute()
+        for chart_path in chart_paths.values():
+            print(f"Chart generated: {chart_path}")

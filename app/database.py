@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS transactions (
     category TEXT NOT NULL,
     is_internal INTEGER NOT NULL DEFAULT 0 CHECK (is_internal IN (0, 1)),
     is_ignored INTEGER NOT NULL DEFAULT 0 CHECK (is_ignored IN (0, 1)),
+    is_card_payment INTEGER NOT NULL DEFAULT 0 CHECK (is_card_payment IN (0, 1)),
     ignore_reason TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (source, id)
@@ -52,19 +53,38 @@ def connect(path: Path = DATABASE_PATH) -> sqlite3.Connection:
         connection.execute(
             "ALTER TABLE transactions ADD COLUMN product TEXT NOT NULL DEFAULT 'account'"
         )
+    columns = {
+        row["name"]
+        for row in connection.execute("PRAGMA table_info(transactions)")
+    }
+    if "is_card_payment" not in columns:
+        connection.execute(
+            "ALTER TABLE transactions ADD COLUMN is_card_payment INTEGER NOT NULL DEFAULT 0"
+        )
+    connection.execute(
+        """
+        DELETE FROM transactions
+        WHERE lower(description) LIKE '%aplicação rdb%'
+           OR lower(description) LIKE '%resgate rdb%'
+        """
+    )
     connection.execute(
         """
         UPDATE transactions
-        SET category = 'cofrinho',
+        SET transaction_type = 'transfer',
+            category = 'pagamento de cartão',
             is_internal = 1,
             is_ignored = 1,
-            ignore_reason = CASE
-                WHEN lower(description) LIKE '%aplicação rdb%'
-                    THEN 'Aplicação no cofrinho'
-                ELSE 'Resgate do cofrinho'
-            END
-        WHERE lower(description) LIKE '%aplicação rdb%'
-           OR lower(description) LIKE '%resgate rdb%'
+            is_card_payment = 1,
+            ignore_reason = 'Pagamento da fatura do cartão'
+        WHERE lower(description) LIKE '%pagamento de fatura%'
+        """
+    )
+    connection.execute(
+        """
+        UPDATE transactions
+        SET is_card_payment = 1
+        WHERE lower(description) LIKE '%pagamento recebido%'
         """
     )
     connection.commit()
@@ -81,8 +101,9 @@ def insert_transactions(
             """
             INSERT OR IGNORE INTO transactions (
                 id, date, amount_cents, description, source, product, source_file,
-                transaction_type, category, is_internal, is_ignored, ignore_reason
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                transaction_type, category, is_internal, is_ignored,
+                is_card_payment, ignore_reason
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 transaction["id"],
@@ -96,6 +117,7 @@ def insert_transactions(
                 transaction["category"],
                 transaction["is_internal"],
                 transaction["is_ignored"],
+                transaction["is_card_payment"],
                 transaction["ignore_reason"],
             ),
         )

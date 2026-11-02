@@ -13,6 +13,22 @@ idempotente e o gráfico é gerado em
 `data/output/graphs/`. Consultas e relatórios tabulares devem ser feitos
 diretamente no SQLite.
 
+O comando `report` gera estes gráficos:
+
+```text
+data/output/graphs/values_by_month.png
+data/output/graphs/monthly_cashflow.png
+data/output/graphs/expenses_by_product.png
+data/output/graphs/expenses_by_category.png
+data/output/graphs/transaction_activity.png
+```
+
+Eles mostram, respectivamente, resultado líquido mensal, receitas versus
+despesas, despesas por conta/cartão, despesas por categoria e quantidade de
+despesas por mês e produto. No gráfico de fluxo mensal, pagamentos da fatura
+aparecem em roxo como uma movimentação relacionada ao cartão, separada das
+despesas reais para evitar dupla contagem.
+
 ```bash
 .venv/bin/python __main__.py pipeline
 .venv/bin/python __main__.py import
@@ -37,9 +53,13 @@ interpretados como despesas e armazenados como centavos negativos. Pagamentos
 recebidos da fatura são reconhecidos como transferências internas e ignorados
 dos indicadores para evitar contar a mesma movimentação duas vezes.
 
+Na conta, lançamentos `Pagamento de fatura` são identificados como pagamentos
+do cartão, marcados como transferências internas e exibidos separadamente no
+gráfico de fluxo mensal.
+
 Aplicações e resgates RDB representam entradas e saídas do cofrinho do
-Nubank. Eles são mantidos no SQLite para rastreabilidade, mas classificados
-como `cofrinho`, marcados como internos e anulados dos indicadores financeiros.
+Nubank. Eles são removidos durante a importação e não são salvos no SQLite,
+pois não representam receitas ou despesas reais.
 
 ## Arquitetura
 

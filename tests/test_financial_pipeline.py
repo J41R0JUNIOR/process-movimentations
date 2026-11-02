@@ -4,7 +4,7 @@ import unittest
 from pathlib import Path
 
 from app.database import connect, insert_transactions
-from app.domain.classification import classify
+from app.domain.classification import classify, is_savings_movement
 from app.read import _parse_cents, read_credit_csv
 
 
@@ -42,13 +42,17 @@ class FinancialPipelineTests(unittest.TestCase):
             transaction = read_credit_csv(path)[0]
             self.assertEqual(transaction["value"], 138584)
 
-    def test_classification_ignores_savings_movements(self) -> None:
+    def test_savings_movements_are_excluded(self) -> None:
         for description in ("Aplicação RDB", "Resgate RDB"):
-            result = classify(description, -100)
-            self.assertEqual(result.transaction_type, "investment")
-            self.assertEqual(result.category, "cofrinho")
-            self.assertTrue(result.is_internal)
-            self.assertTrue(result.is_ignored)
+            self.assertTrue(is_savings_movement(description))
+        self.assertFalse(is_savings_movement("Transferência enviada pelo Pix"))
+
+    def test_classification_marks_card_payment(self) -> None:
+        result = classify("Pagamento de fatura", -100)
+        self.assertEqual(result.transaction_type, "transfer")
+        self.assertTrue(result.is_internal)
+        self.assertTrue(result.is_ignored)
+        self.assertTrue(result.is_card_payment)
 
     def test_database_deduplicates_same_source_and_id(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -65,6 +69,7 @@ class FinancialPipelineTests(unittest.TestCase):
                 "category": "não classificado",
                 "is_internal": 0,
                 "is_ignored": 0,
+                "is_card_payment": 0,
                 "ignore_reason": None,
             }
             self.assertEqual(insert_transactions(connection, [transaction]), 1)

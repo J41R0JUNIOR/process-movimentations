@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.domain.classification import classify
+from app.domain.classification import classify, is_savings_movement
 from app.infrastructure.csv_reader import NubankCsvReader
 from app.infrastructure.report_writer import ReportWriter
 from app.infrastructure.sqlite_repository import SqliteTransactionRepository
@@ -21,7 +21,8 @@ class ImportTransactions:
         transactions = self.reader.read_folder(self.input_folder)
         grouped: dict[str, list[dict]] = {}
         for transaction in transactions:
-            grouped.setdefault(transaction["source_file"], []).append(transaction)
+            if not is_savings_movement(transaction["description"]):
+                grouped.setdefault(transaction["source_file"], []).append(transaction)
 
         inserted = 0
         for source_file, file_transactions in grouped.items():
@@ -36,6 +37,7 @@ class ImportTransactions:
                         "is_internal": int(result.is_internal),
                         "is_ignored": int(result.is_ignored),
                         "ignore_reason": result.ignore_reason,
+                        "is_card_payment": int(result.is_card_payment),
                     }
                 )
             inserted += self.repository.import_file(
@@ -50,19 +52,19 @@ class GenerateReports:
         self,
         repository: SqliteTransactionRepository,
         writer: ReportWriter,
-        chart_path: Path,
+        chart_paths: dict[str, Path],
     ) -> None:
         self.repository = repository
         self.writer = writer
-        self.chart_path = chart_path
+        self.chart_paths = chart_paths
 
-    def execute(self) -> Path:
+    def execute(self) -> dict[str, Path]:
         connection = self.repository.connect()
         try:
             self.writer.write(
                 connection,
-                self.chart_path,
+                self.chart_paths,
             )
         finally:
             connection.close()
-        return self.chart_path
+        return self.chart_paths
