@@ -10,4 +10,5 @@ class FILES(str, Enum):
     PRODUCT_EXPENSES_CHART_FILE = FOLDERS.OUTPUT_FOLDER + "/graphs/expenses_by_product.png"
     CATEGORY_EXPENSES_CHART_FILE = FOLDERS.OUTPUT_FOLDER + "/graphs/expenses_by_category.png"
     TRANSACTION_ACTIVITY_CHART_FILE = FOLDERS.OUTPUT_FOLDER + "/graphs/transaction_activity.png"
+    WEEKDAY_EXPENSES_CHART_FILE = FOLDERS.OUTPUT_FOLDER + "/graphs/expenses_by_weekday.png"
     DATABASE_FILE = "data/database/financial.db"
