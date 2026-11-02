@@ -22,6 +22,7 @@ data/output/graphs/expenses_by_product.png
 data/output/graphs/expenses_by_category.png
 data/output/graphs/transaction_activity.png
 data/output/graphs/expenses_by_weekday.png
+data/output/graphs/average_expenses_by_weekday.png
 ```
 
 Eles mostram, respectivamente, resultado líquido mensal, receitas versus
@@ -29,6 +30,9 @@ despesas, despesas por conta/cartão, despesas por categoria e quantidade de
 despesas por mês e produto, além das despesas por dia da semana. No gráfico de fluxo mensal, pagamentos da fatura
 aparecem em roxo como uma movimentação relacionada ao cartão, separada das
 despesas reais para evitar dupla contagem.
+
+O gráfico `average_expenses_by_weekday.png` mostra o valor médio de cada
+despesa por dia da semana, separado entre conta e cartão.
 
 ```bash
 .venv/bin/python __main__.py pipeline

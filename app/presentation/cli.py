@@ -26,6 +26,9 @@ def build_services() -> tuple[ImportTransactions, GenerateReports]:
                 "category": Path(FILES.CATEGORY_EXPENSES_CHART_FILE.value),
                 "activity": Path(FILES.TRANSACTION_ACTIVITY_CHART_FILE.value),
                 "weekday": Path(FILES.WEEKDAY_EXPENSES_CHART_FILE.value),
+                "weekday_average": Path(
+                    FILES.WEEKDAY_AVERAGE_EXPENSES_CHART_FILE.value
+                ),
             },
         ),
     )

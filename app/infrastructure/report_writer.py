@@ -7,6 +7,7 @@ from app.analytics import (
     generate_category_expenses_chart,
     generate_monthly_chart,
     generate_product_expenses_chart,
+    generate_weekday_average_expenses_chart,
     generate_weekday_expenses_chart,
 )
 
@@ -23,3 +24,7 @@ class ReportWriter:
         generate_category_expenses_chart(connection, chart_paths["category"])
         generate_activity_chart(connection, chart_paths["activity"])
         generate_weekday_expenses_chart(connection, chart_paths["weekday"])
+        generate_weekday_average_expenses_chart(
+            connection,
+            chart_paths["weekday_average"],
+        )

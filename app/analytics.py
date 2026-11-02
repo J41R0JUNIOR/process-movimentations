@@ -105,6 +105,23 @@ def weekday_expenses(
     return [dict(row) for row in rows]
 
 
+def weekday_average_expenses(
+    connection: sqlite3.Connection,
+) -> list[dict[str, int | str | float]]:
+    rows = connection.execute(
+        """
+        SELECT strftime('%w', date) AS weekday_number, product,
+               COUNT(*) AS transaction_count,
+               AVG(-amount_cents) AS average_expense_cents
+        FROM transactions
+        WHERE transaction_type = 'expense' AND is_ignored = 0
+        GROUP BY weekday_number, product
+        ORDER BY weekday_number, product
+        """
+    )
+    return [dict(row) for row in rows]
+
+
 def generate_monthly_chart(
     connection: sqlite3.Connection,
     chart_path: Path,
@@ -287,5 +304,49 @@ def generate_weekday_expenses_chart(
     axis.set_xticks(positions, weekday_names, rotation=30, ha="right")
     axis.set_ylabel("Expenses (BRL)")
     axis.set_title("Expenses by weekday")
+    axis.legend()
+    _save_chart(figure, chart_path)
+
+
+def generate_weekday_average_expenses_chart(
+    connection: sqlite3.Connection,
+    chart_path: Path,
+) -> None:
+    rows = weekday_average_expenses(connection)
+    weekday_names = [
+        "segunda-feira",
+        "terça-feira",
+        "quarta-feira",
+        "quinta-feira",
+        "sexta-feira",
+        "sábado",
+        "domingo",
+    ]
+    products = sorted({str(row["product"]) for row in rows})
+    positions = list(range(len(weekday_names)))
+    width = 0.8 / max(len(products), 1)
+    figure, axis = plt.subplots(figsize=(10, 5))
+    for index, product in enumerate(products):
+        values = [
+            next(
+                (
+                    float(row["average_expense_cents"]) / 100
+                    for row in rows
+                    if int(row["weekday_number"]) == (position + 1) % 7
+                    and row["product"] == product
+                ),
+                0,
+            )
+            for position in positions
+        ]
+        axis.bar(
+            [position - 0.4 + width * (index + 0.5) for position in positions],
+            values,
+            width,
+            label=product,
+        )
+    axis.set_xticks(positions, weekday_names, rotation=30, ha="right")
+    axis.set_ylabel("Average expense (BRL)")
+    axis.set_title("Average expense by weekday")
     axis.legend()
     _save_chart(figure, chart_path)
