@@ -5,6 +5,8 @@ from pathlib import Path
 
 from app.database import connect, insert_transactions
 from app.domain.classification import classify, is_savings_movement
+from app.domain.merchant import is_installment, normalize_merchant
+from app.analytics import recurring_expenses
 from app.read import _parse_cents, read_credit_csv
 
 
@@ -54,6 +56,14 @@ class FinancialPipelineTests(unittest.TestCase):
         self.assertTrue(result.is_ignored)
         self.assertTrue(result.is_card_payment)
 
+    def test_normalize_merchant_and_detect_installment(self) -> None:
+        self.assertEqual(normalize_merchant("Pag*Steam"), "steam")
+        self.assertEqual(
+            normalize_merchant("Amazon - Parcela 3/10"),
+            "amazon",
+        )
+        self.assertTrue(is_installment("Amazon - Parcela 3/10"))
+
     def test_classification_maps_steam_to_games(self) -> None:
         result = classify("Pag*Steam", -5999)
         self.assertEqual(result.transaction_type, "expense")
@@ -81,6 +91,55 @@ class FinancialPipelineTests(unittest.TestCase):
             self.assertEqual(insert_transactions(connection, [transaction]), 0)
             count = connection.execute("SELECT COUNT(*) FROM transactions").fetchone()[0]
             self.assertEqual(count, 1)
+            connection.close()
+
+    def test_recurring_expenses_only_include_non_pix_credit_expenses(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            connection = connect(Path(directory) / "financial.db")
+            transactions = []
+            for month in ("01", "02", "03"):
+                transactions.append(
+                    {
+                        "id": f"steam-{month}",
+                        "date": f"2026-{month}-10",
+                        "value": -1000,
+                        "description": "Pag*Steam",
+                        "source": "nubank",
+                        "product": "credit",
+                        "source_file": "credit.csv",
+                        "transaction_type": "expense",
+                        "category": "jogos",
+                        "is_internal": 0,
+                        "is_ignored": 0,
+                        "is_card_payment": 0,
+                        "ignore_reason": None,
+                    }
+                )
+                transactions.append(
+                    {
+                        "id": f"pix-{month}",
+                        "date": f"2026-{month}-15",
+                        "value": -2000,
+                        "description": "Transferência enviada pelo Pix",
+                        "source": "nubank",
+                        "product": "account",
+                        "source_file": "account.csv",
+                        "transaction_type": "expense",
+                        "category": "não classificado",
+                        "is_internal": 0,
+                        "is_ignored": 0,
+                        "is_card_payment": 0,
+                        "ignore_reason": None,
+                    }
+                )
+            insert_transactions(connection, transactions)
+
+            result = recurring_expenses(connection)
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]["merchant"], "steam")
+            self.assertEqual(result[0]["product"], "credit")
+            self.assertEqual(result[0]["months"], 3)
             connection.close()
 
 

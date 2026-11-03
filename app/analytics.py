@@ -3,6 +3,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
+from app.domain.merchant import is_installment, normalize_merchant
+
 
 def _save_chart(figure: plt.Figure, chart_path: Path) -> None:
     chart_path.parent.mkdir(parents=True, exist_ok=True)
@@ -120,6 +122,47 @@ def weekday_average_expenses(
         """
     )
     return [dict(row) for row in rows]
+
+
+def recurring_expenses(
+    connection: sqlite3.Connection,
+) -> list[dict[str, int | str | float]]:
+    rows = connection.execute(
+        """
+        SELECT date, product, description, amount_cents
+        FROM transactions
+        WHERE transaction_type = 'expense'
+          AND is_ignored = 0
+          AND product = 'credit'
+          AND lower(description) NOT LIKE '%pix%'
+        ORDER BY date
+        """
+    )
+    grouped: dict[tuple[str, str], list[sqlite3.Row]] = {}
+    for row in rows:
+        if is_installment(row["description"]):
+            continue
+        merchant = normalize_merchant(row["description"])
+        if merchant:
+            grouped.setdefault((row["product"], merchant), []).append(row)
+
+    recurring = []
+    for (product, merchant), transactions in grouped.items():
+        months = {row["date"][:7] for row in transactions}
+        if len(months) < 3:
+            continue
+        total_cents = sum(-int(row["amount_cents"]) for row in transactions)
+        recurring.append(
+            {
+                "product": product,
+                "merchant": merchant,
+                "occurrences": len(transactions),
+                "months": len(months),
+                "total_cents": total_cents,
+                "average_cents": total_cents / len(transactions),
+            }
+        )
+    return sorted(recurring, key=lambda row: int(row["total_cents"]), reverse=True)
 
 
 def generate_monthly_chart(
@@ -349,4 +392,19 @@ def generate_weekday_average_expenses_chart(
     axis.set_ylabel("Average expense (BRL)")
     axis.set_title("Average expense by weekday")
     axis.legend()
+    _save_chart(figure, chart_path)
+
+
+def generate_recurring_expenses_chart(
+    connection: sqlite3.Connection,
+    chart_path: Path,
+) -> None:
+    rows = recurring_expenses(connection)[:15]
+    labels = [f"{row['merchant']} ({row['product']})" for row in rows]
+    values = [float(row["average_cents"]) / 100 for row in rows]
+    figure, axis = plt.subplots(figsize=(12, 8))
+    axis.barh(labels[::-1], values[::-1], color="#00897b")
+    axis.set_xlabel("Average expense per occurrence (BRL)")
+    axis.set_title("Recurring expenses")
+    axis.tick_params(axis="y", labelsize=8)
     _save_chart(figure, chart_path)

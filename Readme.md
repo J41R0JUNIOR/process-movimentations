@@ -23,6 +23,7 @@ data/output/graphs/expenses_by_category.png
 data/output/graphs/transaction_activity.png
 data/output/graphs/expenses_by_weekday.png
 data/output/graphs/average_expenses_by_weekday.png
+data/output/graphs/recurring_expenses.png
 ```
 
 Eles mostram, respectivamente, resultado líquido mensal, receitas versus
@@ -33,6 +34,12 @@ despesas reais para evitar dupla contagem.
 
 O gráfico `average_expenses_by_weekday.png` mostra o valor médio de cada
 despesa por dia da semana, separado entre conta e cartão.
+
+O gráfico `recurring_expenses.png` mostra os principais estabelecimentos
+recorrentes do cartão de crédito. A regra inicial considera recorrente um
+estabelecimento presente em pelo menos três meses diferentes, exclui
+transferências Pix e compras parceladas, que serão tratadas separadamente no
+futuro.
 
 ```bash
 .venv/bin/python __main__.py pipeline

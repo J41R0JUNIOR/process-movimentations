@@ -29,6 +29,7 @@ def build_services() -> tuple[ImportTransactions, GenerateReports]:
                 "weekday_average": Path(
                     FILES.WEEKDAY_AVERAGE_EXPENSES_CHART_FILE.value
                 ),
+                "recurring": Path(FILES.RECURRING_EXPENSES_CHART_FILE.value),
             },
         ),
     )
