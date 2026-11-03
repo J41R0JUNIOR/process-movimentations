@@ -39,7 +39,8 @@ O gráfico `recurring_expenses.png` mostra os principais estabelecimentos
 recorrentes do cartão de crédito. A regra inicial considera recorrente um
 estabelecimento presente em pelo menos três meses diferentes, exclui
 transferências Pix e compras parceladas, que serão tratadas separadamente no
-futuro.
+futuro. A análise considera somente os seis meses mais recentes disponíveis no
+banco, evitando que estabelecimentos antigos dominem o resultado.
 
 ```bash
 .venv/bin/python __main__.py pipeline

@@ -142,6 +142,36 @@ class FinancialPipelineTests(unittest.TestCase):
             self.assertEqual(result[0]["months"], 3)
             connection.close()
 
+    def test_recurring_expenses_use_the_latest_months_window(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            connection = connect(Path(directory) / "financial.db")
+            transactions = []
+            for month in ("01", "02", "03", "04"):
+                transactions.append(
+                    {
+                        "id": f"steam-{month}",
+                        "date": f"2026-{month}-10",
+                        "value": -1000,
+                        "description": "Pag*Steam",
+                        "source": "nubank",
+                        "product": "credit",
+                        "source_file": "credit.csv",
+                        "transaction_type": "expense",
+                        "category": "jogos",
+                        "is_internal": 0,
+                        "is_ignored": 0,
+                        "is_card_payment": 0,
+                        "ignore_reason": None,
+                    }
+                )
+            insert_transactions(connection, transactions)
+
+            result = recurring_expenses(connection, months_window=3)
+
+            self.assertEqual(result[0]["months"], 3)
+            self.assertEqual(result[0]["occurrences"], 3)
+            connection.close()
+
 
 if __name__ == "__main__":
     unittest.main()

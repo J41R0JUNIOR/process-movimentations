@@ -126,7 +126,11 @@ def weekday_average_expenses(
 
 def recurring_expenses(
     connection: sqlite3.Connection,
+    months_window: int = 6,
 ) -> list[dict[str, int | str | float]]:
+    if months_window < 1:
+        raise ValueError("months_window must be at least 1")
+
     rows = connection.execute(
         """
         SELECT date, product, description, amount_cents
@@ -138,8 +142,17 @@ def recurring_expenses(
         ORDER BY date
         """
     )
+    transactions = list(rows)
+    available_months = sorted(
+        {row["date"][:7] for row in transactions},
+        reverse=True,
+    )
+    recent_months = set(available_months[:months_window])
+
     grouped: dict[tuple[str, str], list[sqlite3.Row]] = {}
-    for row in rows:
+    for row in transactions:
+        if row["date"][:7] not in recent_months:
+            continue
         if is_installment(row["description"]):
             continue
         merchant = normalize_merchant(row["description"])
